@@ -1,16 +1,28 @@
-var sharebtn = document.querySelectorAll(".tile-share, .share");
+const toast = document.querySelector(".toast");
+const copyButtons = document.querySelectorAll("[data-link]");
+let toastTimeout;
 
-async function copytext(e){
-    //prevent button to go to site
-    e.preventDefault()
-    const link= this.getAttribute('link')
-    try{
-        await navigator.clipboard.writeText(link)
-        alert("Copied the link: "+link)
-    }
-    catch(err){
-        console.error(err)
-    }
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("visible");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove("visible");
+  }, 2200);
 }
 
-sharebtn.forEach(sharebtn => sharebtn.addEventListener('click', copytext));
+async function copyLink(event) {
+  event.preventDefault();
+  const link = event.currentTarget.dataset.link;
+  if (!link) return;
+
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast(`Link copiado: ${link}`);
+  } catch (error) {
+    console.error(error);
+    showToast("Não foi possível copiar o link");
+  }
+}
+
+copyButtons.forEach((button) => button.addEventListener("click", copyLink));
